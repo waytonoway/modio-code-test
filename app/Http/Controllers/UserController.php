@@ -31,7 +31,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function show(Request $request): JsonResponse
+    public function read(Request $request): JsonResponse
     {
         $user = $request->user();
         $user->applyContext($request);
@@ -55,7 +55,7 @@ class UserController extends Controller
      *     )
      * )
      */
-    public function destroy(Request $request): JsonResponse
+    public function delete(Request $request): JsonResponse
     {
         $user = $request->user();
 

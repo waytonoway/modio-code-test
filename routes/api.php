@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\GameController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -20,7 +21,7 @@ Route::middleware('api')->group(function () {
     Route::post('login', [AuthController::class, 'login'])->name('auth.login');
 
     Route::middleware('auth:sanctum')->group(function () {
-        Route::get('user', [UserController::class, 'show'])->name('user.show');
-        Route::delete('user', [UserController::class, 'destroy'])->name('user.destroy');
+        Route::get('user', [UserController::class, 'read'])->name('user.read');
+        Route::delete('user', [UserController::class, 'delete'])->name('user.delete');
     });
 });
