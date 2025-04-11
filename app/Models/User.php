@@ -2,44 +2,60 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\WithContextTrait;
+//use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
+/**
+ * @OA\Schema(
+ *     schema="User",
+ *     type="object",
+ *     title="User",
+ *     required={"id", "name", "email", "created_at", "updated_at"},
+ *     @OA\Property(property="id", type="integer", example=1),
+ *     @OA\Property(property="name", type="string", example="John Test"),
+ *     @OA\Property(property="email", type="string", format="email", example="John@example.com"),
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-04-11T10:00:00Z"),
+ *     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-04-11T10:00:00Z")
+ * )
+ */
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, WithContextTrait;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+
+    public function toArray(): array
+    {
+        $data = [
+            'id' => $this->id,
+            'name' => $this->name,
+            'email' => $this->email,
+        ];
+
+        if (in_array('details', $this->context)) {
+            $data['created_at'] = $this->created_at;
+            $data['updated_at'] = $this->updated_at;
+        }
+
+        return $data;
+    }
 }

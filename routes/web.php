@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/docs', [\L5Swagger\Http\Controllers\SwaggerController::class, 'docs'])
+    ->name('l5-swagger.default.docs')
+    ->middleware('swagger.config');
+
 Route::get('/', function () {
     return view('welcome');
 });
