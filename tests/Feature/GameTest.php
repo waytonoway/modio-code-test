@@ -2,34 +2,59 @@
 
 namespace Tests\Feature;
 
-// use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Artisan;
 use Tests\TestCase;
 
 class GameTest extends TestCase
 {
+    use RefreshDatabase;
     public function testBrowseSucceeds() : void
     {
-        // todo update this test to assert that a paginated response was given
-        //  in order for this test to pass, you will need to seed at least 1 game
-        $this
-            ->get('games')
+        Artisan::call('db:seed', ['--class' => 'GameSeeder']);
+
+        $this->actingAsTestUser();
+
+        $response = $this
+            ->get('api/games')
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
-                'id',
-                'name',
-                'user_id',
-                'created_at',
-                'updated_at'
+                'data' => [
+                    [
+                        'id',
+                        'name',
+                        'user_id',
+                        'created_at',
+                        'updated_at',
+                    ]
+                ],
+                'current_page',
+                'from',
+                'last_page',
+                'per_page',
+                'to',
+                'total',
             ]);
+
+        $lastPage = $response->json('last_page');
+        $currentPage = $response->json('current_page');
+        $perPage = $response->json('per_page');
+
+        for ($page = $currentPage; $page <= $lastPage; $page++) {
+            $pageResponse = $this->getJson('api/games?page='.$page.'&per_page='.$perPage);
+
+            $pageResponse->assertStatus(Response::HTTP_OK);
+        }
     }
 
     public function testCreateSucceedsWhileAuthenticated() : void
     {
-        // todo this endpoint must be secured by user authentication, modify the post call
-        //   below to include the required header or URL parameter to achieve that
+        $this->actingAsTestUser();
+
         $this
-            ->post('games', [
+            ->postJson('api/games', [
                 'name' => 'Rogue Knight'
             ])
             ->assertStatus(Response::HTTP_CREATED)
@@ -47,13 +72,14 @@ class GameTest extends TestCase
 
     public function testReadSucceeds() : void
     {
-        // todo create the game that we are going to view, adding the required authentication
-        $response = $this->post('games', [
+        $this->actingAsTestUser();
+
+        $response = $this->postJson('api/games', [
             'name' => 'Rogue Knight'
         ]);
 
         $this
-            ->get('games/'.$response->json('id'))
+            ->getJson('api/games/'.$response->json('id'))
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
                 'id',
@@ -67,10 +93,11 @@ class GameTest extends TestCase
             ]);
     }
 
+
     public function testCreateFailsWhileUnauthenticated() : void
     {
         $this
-            ->post('games', [
+            ->postJson('api/games', [
                 'name' => 'Rogue Knight'
             ])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
@@ -78,14 +105,15 @@ class GameTest extends TestCase
 
     public function testUpdateSucceedsWhileAuthenticated() : void
     {
-        // todo again create the game, include the auth.
-        $response = $this->post('games', [
+        $this->actingAsTestUser();
+
+        $response = $this->postJson('api/games', [
             'name' => 'Rogue Knight'
         ]);
 
-        // todo include the auth
+
         $this
-            ->put('games/'.$response->json('id'), [
+            ->putJson('api/games/'.$response->json('id'), [
                 'name' => 'Rogue Knight Remastered'
             ])
             ->assertStatus(Response::HTTP_OK)
@@ -103,14 +131,15 @@ class GameTest extends TestCase
 
     public function testUpdateFailsWhileUnauthenticated() : void
     {
-        // todo again create the game, include VALID auth here, just to create the game.
-        $response = $this->post('games', [
+        $this->actingAsTestUser();
+        $response = $this->postJson('api/games', [
             'name' => 'Rogue Knight'
         ]);
 
-        // this however should fail with 401 Unauthorized, as expected
+        $this->logout();
+
         $this
-            ->put('games/'.$response->json('id'), [
+            ->putJson('api/games/'.$response->json('id'), [
                 'name' => 'Rogue Knight Remastered'
             ])
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
@@ -118,14 +147,13 @@ class GameTest extends TestCase
 
     public function testDeleteSucceedsWhileAuthenticated() : void
     {
-        // todo again create the game, include the auth.
-        $response = $this->post('games', [
+        $this->actingAsTestUser();
+        $response = $this->postJson('api/games', [
             'name' => 'Rogue Knight'
         ]);
 
-        // just to ensure the game actually exists
         $this
-            ->get('games/'.$response->json('id'))
+            ->getJson('api/games/'.$response->json('id'))
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
                 'id',
@@ -138,22 +166,20 @@ class GameTest extends TestCase
                 'name' => 'Rogue Knight'
             ]);
 
-        // todo include the auth
         $this
-            ->delete('games/'.$response->json('id'))
+            ->deleteJson('api/games/'.$response->json('id'))
             ->assertStatus(Response::HTTP_NO_CONTENT);
     }
 
     public function testDeleteFailsWhileUnauthenticated() : void
     {
-        // todo again create the game, include the auth just so that we have something to attempt to delete.
-        $response = $this->post('games', [
+        $this->actingAsTestUser();
+        $response = $this->postJson('api/games', [
             'name' => 'Rogue Knight'
         ]);
 
-        // and just for sanity we make sure it actually got created
         $this
-            ->get('games/'.$response->json('id'))
+            ->getJson('api/games/'.$response->json('id'))
             ->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure([
                 'id',
@@ -164,9 +190,25 @@ class GameTest extends TestCase
                 'name' => 'Rogue Knight'
             ]);
 
-        // then we finally attempt to delete it without authentication present
+        $this->logout();
+
         $this
-            ->delete('games/'.$response->json('id'))
+            ->deleteJson('api/games/'.$response->json('id'))
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
+    }
+
+    private function actingAsTestUser(): User
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user, 'sanctum');
+
+        return $user;
+    }
+
+    private function logout(): void {
+        $this->flushSession();
+
+        $this->app['auth']->forgetGuards();
     }
 }

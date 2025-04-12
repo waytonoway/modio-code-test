@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use Illuminate\Http\Response;
 use Tests\TestCase;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -34,7 +35,7 @@ class AuthTest extends TestCase
             'password_confirmation' => 'password',
         ]);
 
-        $response->assertStatus(422);
+        $response->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testUserCanLogin()
@@ -49,7 +50,7 @@ class AuthTest extends TestCase
             'password' => 'secret123',
         ]);
 
-        $response->assertStatus(200)
+        $response->assertStatus(Response::HTTP_OK)
             ->assertJsonStructure(['token']);
     }
 
@@ -65,7 +66,7 @@ class AuthTest extends TestCase
             'password' => 'wrongpassword',
         ]);
 
-        $response->assertStatus(401);
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testAuthenticatedUserCanAccessProtectedRoute()
@@ -74,7 +75,7 @@ class AuthTest extends TestCase
 
         $response = $this->actingAs($user)->getJson('/api/user');
 
-        $response->assertStatus(200)
+        $response->assertStatus(Response::HTTP_OK)
             ->assertJsonFragment(['email' => $user->email]);
     }
 
@@ -82,7 +83,7 @@ class AuthTest extends TestCase
     {
         $response = $this->getJson('/api/user');
 
-        $response->assertStatus(401);
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
     public function testUserCanBeDeleted()

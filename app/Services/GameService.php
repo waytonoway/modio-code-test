@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Game;
+use App\Models\User;
+
 /**
  * GameService
  *
@@ -10,5 +13,28 @@ namespace App\Services;
  */
 class GameService
 {
+    public function getAll($perPage = 10, $page = 1)
+    {
+        return Game::query()->paginate($perPage, ['*'], 'page', $page);
+    }
 
+    public function create(User $user, array $data): Game
+    {
+        return Game::create([
+            'user_id' => $user->id,
+            'name' => $data['name'],
+        ]);
+    }
+
+    public function update(Game $game, array $data): Game
+    {
+        $game->update(['name' => $data['name']]);
+
+        return $game;
+    }
+
+    public function delete(Game $game): void
+    {
+        $game->delete();
+    }
 }

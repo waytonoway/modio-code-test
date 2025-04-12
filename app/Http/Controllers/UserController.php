@@ -16,7 +16,7 @@ class UserController extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/user",
+     *     path="/user",
      *     summary="Get the authenticated user",
      *     description="Retrieve the details of the currently authenticated user",
      *     tags={"User"},
@@ -41,7 +41,7 @@ class UserController extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/user",
+     *     path="/user",
      *     summary="Delete the authenticated user",
      *     description="Delete the currently authenticated user",
      *     tags={"User"},

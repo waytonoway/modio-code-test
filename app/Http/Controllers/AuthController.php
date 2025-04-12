@@ -31,7 +31,7 @@ class AuthController extends Controller
      *     @OA\Response(
      *         response=201,
      *         description="User registered successfully",
-     *         @OA\JsonContent(ref="#app/Models/User")
+     *         @OA\JsonContent(ref="#/components/schemas/User")
      *     ),
      *     @OA\Response(
      *         response=400,
@@ -68,7 +68,7 @@ class AuthController extends Controller
      *     @OA\Response(
      *         response=200,
      *         description="User logged in successfully",
-     *         @OA\JsonContent(ref="#app/Models/User")
+     *         @OA\JsonContent(ref="#/components/schemas/User")
      *     ),
      *     @OA\Response(
      *         response=401,
@@ -93,7 +93,7 @@ class AuthController extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/logout",
+     *     path="/logout",
      *     summary="Log out a user",
      *     description="Log out a user and invalidate the authentication token",
      *     tags={"Authentication"},
