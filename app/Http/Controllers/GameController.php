@@ -7,6 +7,7 @@ use App\Models\Game;
 use App\Services\GameService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * @OA\Tag(
@@ -31,12 +32,21 @@ class GameController extends Controller implements GameControllerInterface
      *     @OA\Response(
      *         response=200,
      *         description="List of games",
-     *         @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/Game"))
+     *         @OA\JsonContent(
+     *               type="object",
+     *               @OA\Property(property="items", type="array", @OA\Items(ref="#/components/schemas/Game")),
+     *               @OA\Property(property="current_page", type="integer"),
+     *               @OA\Property(property="last_page", type="integer"),
+     *               @OA\Property(property="per_page", type="integer"),
+     *               @OA\Property(property="total", type="integer")
+     *           )
      *     )
      * )
      */
     public function browse(Request $request): JsonResponse
     {
+        $this->authorize('view', Game::class);
+
         $page = $request->input('page', 1);
         $perPage = $request->input('per_page', 10);
 
@@ -63,11 +73,12 @@ class GameController extends Controller implements GameControllerInterface
      */
     public function create(Request $request): JsonResponse
     {
+        $this->authorize('create', Game::class);
         $validated = $this->validateGame($request);
 
         $game = $this->gameService->create($request->user(), $validated);
 
-        return response()->json($game, 201);
+        return response()->json($game, Response::HTTP_CREATED);
     }
 
     /**
@@ -95,7 +106,6 @@ class GameController extends Controller implements GameControllerInterface
 
         return response()->json($game);
     }
-
 
     /**
      * @OA\Put(
@@ -157,7 +167,7 @@ class GameController extends Controller implements GameControllerInterface
 
         $this->gameService->delete($game);
 
-        return response()->json(null, 204);
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
     private function validateGame(Request $request): array

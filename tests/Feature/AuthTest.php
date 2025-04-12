@@ -13,7 +13,7 @@ class AuthTest extends TestCase
 
     public function testUserCanRegister()
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password',
@@ -28,7 +28,7 @@ class AuthTest extends TestCase
     {
         User::factory()->create(['email' => 'test@example.com']);
 
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/register', [
             'name' => 'Duplicate User',
             'email' => 'test@example.com',
             'password' => 'password',
@@ -45,7 +45,7 @@ class AuthTest extends TestCase
             'password' => bcrypt('secret123'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/login', [
             'email' => 'login@example.com',
             'password' => 'secret123',
         ]);
@@ -61,7 +61,7 @@ class AuthTest extends TestCase
             'password' => bcrypt('correctpassword'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/login', [
             'email' => 'wrongpass@example.com',
             'password' => 'wrongpassword',
         ]);
@@ -73,7 +73,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->actingAs($user)->getJson('/api/user');
+        $response = $this->actingAs($user)->getJson('/user');
 
         $response->assertStatus(Response::HTTP_OK)
             ->assertJsonFragment(['email' => $user->email]);
@@ -81,7 +81,7 @@ class AuthTest extends TestCase
 
     public function testUnauthenticatedUserCannotAccessProtectedRoute()
     {
-        $response = $this->getJson('/api/user');
+        $response = $this->getJson('/user');
 
         $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
@@ -90,7 +90,7 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create(['email' => 'delete@example.com']);
 
-        $this->actingAs($user)->deleteJson("/api/user");
+        $this->actingAs($user)->deleteJson("/user");
 
         $this->assertDatabaseMissing('users', ['email' => 'delete@example.com']);
     }

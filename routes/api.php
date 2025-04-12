@@ -1,10 +1,5 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\GameController;
-use Illuminate\Support\Facades\Route;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -16,16 +11,3 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('register', [AuthController::class, 'register'])->name('auth.register');
-Route::post('login', [AuthController::class, 'login'])->name('auth.login');
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('user', [UserController::class, 'read'])->name('user.read');
-    Route::delete('user', [UserController::class, 'delete'])->name('user.delete');
-
-    Route::post('games', [GameController::class, 'create']);
-    Route::put('games/{game}', [GameController::class, 'update']);
-    Route::delete('games/{game}', [GameController::class, 'delete']);
-    Route::get('games', [GameController::class, 'browse']);
-    Route::get('games/{game}', [GameController::class, 'read']);
-});

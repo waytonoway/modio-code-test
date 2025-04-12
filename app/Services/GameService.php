@@ -4,23 +4,25 @@ namespace App\Services;
 
 use App\Models\Game;
 use App\Models\User;
+use App\Repositories\GameRepository;
 
-/**
- * GameService
- *
- * @todo Fill this class with business logic relating to games, the service layer is responsible for solving
- *   the problems and producing the result.
- */
 class GameService
 {
-    public function getAll($perPage = 10, $page = 1)
+    private GameRepository $gameRepo;
+
+    public function __construct(GameRepository $gameRepo)
     {
-        return Game::query()->paginate($perPage, ['*'], 'page', $page);
+        $this->gameRepo = $gameRepo;
+    }
+
+    public function getAll($perPage = 10)
+    {
+        return $this->gameRepo->paginate($perPage);
     }
 
     public function create(User $user, array $data): Game
     {
-        return Game::create([
+        return $this->gameRepo->create([
             'user_id' => $user->id,
             'name' => $data['name'],
         ]);
@@ -28,13 +30,13 @@ class GameService
 
     public function update(Game $game, array $data): Game
     {
-        $game->update(['name' => $data['name']]);
+        $this->gameRepo->update($game, ['name' => $data['name']]);
 
         return $game;
     }
 
     public function delete(Game $game): void
     {
-        $game->delete();
+        $this->gameRepo->delete($game);
     }
 }

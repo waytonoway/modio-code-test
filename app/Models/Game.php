@@ -30,4 +30,9 @@ class Game extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function mods()
+    {
+        return $this->hasMany(Mod::class);
+    }
 }

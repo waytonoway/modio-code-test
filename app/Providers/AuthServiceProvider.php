@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Mod;
 use App\Policies\GamePolicy;
 # use Illuminate\Support\Facades\Gate;
 use App\Models\Game;
+use App\Policies\ModPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Game::class => GamePolicy::class,
+        Mod::class => ModPolicy::class,
     ];
 
     /**

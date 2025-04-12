@@ -1,14 +1,15 @@
 <?php
+
 namespace App\Policies;
 
-use App\Models\Game;
+use App\Models\Mod;
 use App\Models\User;
 
-class GamePolicy
+class ModPolicy
 {
-    public function manage(User $user, Game $game): bool
+    public function manage(User $user, Mod $mod): bool
     {
-        return $user->id === $game->user_id;
+        return $user && $user->id === $mod->user_id;
     }
 
     public function create(User $user): bool

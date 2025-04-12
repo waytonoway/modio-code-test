@@ -2,17 +2,17 @@
 
 namespace App\Repositories;
 
-/**
- * GameRepository
- *
- * @todo Fill this class with logic relating to model/record management for games, the repository layer is responsible
- *   for solely dealing with the database
- */
+use App\Models\Game;
+
 class GameRepository extends BaseRepository
 {
-    private GameRepository $gameRepo;
-
-    public function __construct(GameRepository $gameRepo)
+    public function __construct(Game $game)
     {
+        parent::__construct($game);
+    }
+
+    public function create(array $data)
+    {
+        return $this->model->create($data);
     }
 }

@@ -11,8 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mod', function (Blueprint $table) {
+        Schema::create('mods', function (Blueprint $table) {
             $table->id();
+
+            $table->foreignId('game_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+
+            $table->string('name');
+
             $table->timestamps();
         });
     }

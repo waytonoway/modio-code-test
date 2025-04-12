@@ -2,13 +2,36 @@
 
 namespace App\Repositories;
 
-/**
- * BaseRepository
- *
- * @todo Fill this class with common logic relating to model/record management that can be shared amongst other
- *   repositories.
- */
-abstract class BaseRepository
-{
+use Illuminate\Database\Eloquent\Model;
 
+class BaseRepository
+{
+    protected Model $model;
+
+    public function __construct(Model $model)
+    {
+        $this->model = $model;
+    }
+
+    public function update(Model $model, array $data): Model
+    {
+        $model->update($data);
+
+        return $model;
+    }
+
+    public function delete(Model $model): void
+    {
+        $model->delete();
+    }
+
+    public function paginate(int $perPage = 15)
+    {
+        return $this->model->paginate($perPage);
+    }
+
+    public function find(int $id)
+    {
+        return $this->model->find($id);
+    }
 }
