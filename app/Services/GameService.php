@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Game;
 use App\Models\User;
 use App\Repositories\GameRepository;
+use Illuminate\Support\Facades\Cache;
 
 class GameService
 {
@@ -15,22 +16,32 @@ class GameService
         $this->gameRepo = $gameRepo;
     }
 
-    public function getAll($perPage = 10)
+    public function getWithPagination(int $perPage = 10, int $page = 1)
     {
-        return $this->gameRepo->paginate($perPage);
+        $cacheKey = 'games_page_' . $perPage . '_' . $page;
+
+        return Cache::rememberForever($cacheKey, function () use ($perPage, $page) {
+            return $this->gameRepo->paginate($perPage);
+        });
     }
 
     public function create(User $user, array $data): Game
     {
-        return $this->gameRepo->create([
+        $game = $this->gameRepo->create([
             'user_id' => $user->id,
             'name' => $data['name'],
         ]);
+
+        Cache::tags(['games'])->flush();
+
+        return $game;
     }
 
     public function update(Game $game, array $data): Game
     {
         $this->gameRepo->update($game, ['name' => $data['name']]);
+
+        Cache::tags(['games'])->flush();
 
         return $game;
     }
@@ -38,5 +49,7 @@ class GameService
     public function delete(Game $game): void
     {
         $this->gameRepo->delete($game);
+
+        Cache::tags(['games'])->flush();
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Traits\WithContextTrait;
-//use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -22,7 +22,7 @@ use Laravel\Sanctum\HasApiTokens;
  *     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-04-11T10:00:00Z")
  * )
  */
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable, WithContextTrait;
 

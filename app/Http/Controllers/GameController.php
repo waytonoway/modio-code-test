@@ -50,7 +50,7 @@ class GameController extends Controller implements GameControllerInterface
         $page = $request->input('page', 1);
         $perPage = $request->input('per_page', 10);
 
-        $games = $this->gameService->getAll($perPage, $page);
+        $games = $this->gameService->getWithPagination($perPage, $page);
 
         return response()->json($games);
     }

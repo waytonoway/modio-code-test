@@ -94,4 +94,13 @@ class AuthTest extends TestCase
 
         $this->assertDatabaseMissing('users', ['email' => 'delete@example.com']);
     }
+
+    public function testUnverifiedUserCannotAccessVerifiedRoutes(): void
+    {
+        $user = User::factory()->unverified()->create();
+
+        $this->actingAs($user, 'sanctum')
+            ->getJson('/dashboard')
+            ->assertStatus(Response::HTTP_FORBIDDEN);
+    }
 }

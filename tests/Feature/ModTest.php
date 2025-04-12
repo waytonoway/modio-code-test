@@ -21,7 +21,7 @@ class ModTest extends TestCase
     {
         $this->seed(ModSeeder::class);
 
-        $user = $this->actingAsTestUser();
+        $this->actingAsTestUser();
         $game = Game::inRandomOrder()->first();
 
         $mod = Mod::query()->where('game_id', '=', $game->id)->first();
@@ -194,6 +194,18 @@ class ModTest extends TestCase
         $this
             ->deleteJson('/games/' . $gameId . '/mods/' . $modId)
             ->assertStatus(Response::HTTP_UNAUTHORIZED);
+    }
+
+    public function testModBelongsToGameMiddleware()
+    {
+        $this->seed(ModSeeder::class);
+
+        $games = Game::inRandomOrder()->limit(2)->get();
+        $mod = Mod::query()->where('game_id', '=', $games[0]->id)->first();
+
+        $this->getJson('/games/' . $games[1]->id . '/mods/' . $mod->id)
+            ->assertStatus(Response::HTTP_NOT_FOUND)
+            ->assertJson(['error' => 'Mod not found for this game']);
     }
 
     private function createGame(): int {

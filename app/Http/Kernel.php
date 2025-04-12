@@ -68,6 +68,7 @@ class Kernel extends HttpKernel
 
     protected $routeMiddleware = [
         'swagger.config' => \App\Http\Middleware\AddSwaggerConfigToRequest::class,
+        'mod.belongs.to.game' => \App\Http\Middleware\ModBelongsToGame::class,
     ];
 
 }
